@@ -1,13 +1,20 @@
+
+
 //Esse é um caça palavras 15x15 que procura as palavras em todas as 8 direções, feito por mim.
 
 import java.util.Scanner;
 
-public class CacaPalavraAprimorado {
+public class CacaPalavrasCompleto {
+    public boolean[][] mapaBoolean = new boolean[15][15];
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+    	public static final String ANSI_RESET = "\u001B[0m";
 
   //método construtor:
-  private CacaPalavraAprimorado() {
+  private CacaPalavrasCompleto() {
     Scanner entrada = new Scanner(System.in);
     char[][] mapa = new char[15][15];
+  
     String[][] palavras = new String[10][2];
     int mapaQuantLinhas = 15;
     int mapaQuantColunas = 15;
@@ -19,9 +26,10 @@ public class CacaPalavraAprimorado {
     do {
       System.out.println("_____ Menu: Caça Palavras _____");
       System.out.println("1. listar palavras");
-      System.out.println("2. listar mapa");
+      System.out.println("2. mostrar caça-palavras");
       System.out.println("3. listar respostas");
-      System.out.println("4. sair");
+      System.out.println("4. mostrar respostas no caca-palavras");
+      System.out.println("5. sair");
       System.out.print(" __ opção: ");
       opcao = entrada.nextInt();
       switch (opcao) {
@@ -35,13 +43,14 @@ public class CacaPalavraAprimorado {
           respostasPalavras(palavras);
           break;
         case 4:
+        imprimirMapaBoolean(mapa, mapaQuantLinhas, mapaQuantColunas, palavras);
           break;
         default:
           System.out.println("Opção errada!...");
           break;
       }
     } 
-    while (opcao != 4);
+    while (opcao != 5);
     entrada.close();
   }
   
@@ -178,19 +187,53 @@ public class CacaPalavraAprimorado {
     }
   }
 
+  //imprime o caça palavras completo na tela, bem formatado, realmente tem uma boa dificuldade para encontrar as palavras visualmente.
+  public void imprimirMapaBoolean(char[][] mapa, int mapaQtdLinha, int mapaQtdColuna, String [][] palavras) {
+    for (int i = 0; i <= 4; i++) {
+        System.out.print(palavras[i][0] + " - ");
+    }
+      System.out.println("");
+      for (int i = 5; i <= 9; i++) {
+       System.out.print(palavras[i][0] + " - ");
+      }
+      System.out.println("");
+      System.out.print("   ");
+      for (int i = 0; i < mapaQtdColuna; i++) {
+        if (i < 10) {
+        System.out.print(" 0" + i + " ");
+      } else if (i <= 15) {
+        System.out.print(" " + i + " ");
+       }
+      }
+      System.out.println("");
+      
+      System.out.println("   -------------------------------------------------------------");
+      for (int i = 0; i < mapaQtdLinha; i++) {
+        if (i < 10) {
+        System.out.print("0" + i + " ");
+        } else if (i < 15) {
+          System.out.print(i + " ");
+        }
+        for (int j = 0; j < mapaQtdColuna; j++) {
+          if (mapaBoolean[i][j]) {
+          System.out.print("|"+ ANSI_BLUE_BACKGROUND + " " + ANSI_RED + mapa[i][j] + " " + ANSI_RESET);
+          } else {
+            System.out.print("| " + mapa[i][j] + " ");
+          }
+        }
+          
+        System.out.println("|");
+        System.out.println("   -------------------------------------------------------------");
+      }
+  }
+
 //método para procurar as palavras da esquerda para a direita
-  private void esquerdaParaDireita (
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
+  private void esquerdaParaDireita (int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,
     String[][] palavras) {
     // percorre colunas da esquerda para a direita
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = 0; col < mapaQtdColuna; col++) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = 0; col < mapaQtdColuna; col++) {
          //melhorar desempenho, dar break quando não precisa mais procurar
          if (col > (mapaQtdColuna - palavras[palavraAtual][0].length()) && letraAtual == 0) {
           break;
@@ -200,10 +243,10 @@ public class CacaPalavraAprimorado {
             //compara se o tamanho da letra é do mesmo tamanho da palavra, se for verdade, a palavra inteira foi encontrada no mapa
           if (letraAtual == palavras[palavraAtual][0].length()) {
           //se encontrar a palavra inteira, a coluna 1 da matriz "palavra" vai receber a posição da primeira letra no mapa.
-            palavras[palavraAtual][1] =
-              "[" + lin + "," + 
-              (col - palavras[palavraAtual][0].length() + 1) +
-              "]";
+            palavras[palavraAtual][1] = "[" + lin + "," + (col - palavras[palavraAtual][0].length() + 1) + "]";
+            for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                mapaBoolean[lin][col - j] = true;
+            }
             letraAtual = 0;
             break;
           }
@@ -215,18 +258,11 @@ public class CacaPalavraAprimorado {
   }
 
   //método para procurar as palavras da direita para a esquerda
-  private void direitaParaEsquerda (
-  int palavraAtual,
-  int lin,
-  int col,
-  int letraAtual,
-  int mapaQtdLinha,
-  int mapaQtdColuna,
-  char[][] mapa,
-  String[][] palavras) {
+  private void direitaParaEsquerda (int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     //percorre colunas da direita pra esquerda
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = (mapaQtdColuna - 1); col >= 0; col -= 1) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = (mapaQtdColuna - 1); col >= 0; col -= 1) {
         //melhorar desempenho, dar break quando não precisa mais procurar
         if (col < (palavras[palavraAtual][0].length() - 1) && letraAtual == 0) {
           break;
@@ -234,10 +270,10 @@ public class CacaPalavraAprimorado {
           letraAtual += 1;
           //funcionamento igual ao do método da esquerda para a direita, mudando apenas a lógica da posição da primeira letra.
           if (letraAtual == palavras[palavraAtual][0].length()) {
-            palavras[palavraAtual][1] =
-              "[" + lin + "," + 
-              (col + palavras[palavraAtual][0].length() - 1) +
-              "]";
+            palavras[palavraAtual][1] ="[" + lin + "," + (col + palavras[palavraAtual][0].length() - 1) + "]";
+            for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                mapaBoolean[lin][col + j] = true;
+            }
             letraAtual = 0;
             break;
           }
@@ -248,19 +284,12 @@ public class CacaPalavraAprimorado {
     }
   }
  //método para procurar as palavras de cima para baixo
-  private void cimaParaBaixo (
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
+  private void cimaParaBaixo (int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     //percorre linhas de cima para baixo
     //agora começa por coluna
-    for (col = 0; col < mapaQtdColuna; col++) {
-      for (lin = 0; lin < mapaQtdLinha; lin++) {
+    int letraAtual = 0;
+    for (int col = 0; col < mapaQtdColuna; col++) {
+      for (int lin = 0; lin < mapaQtdLinha; lin++) {
          //melhorar desempenho, dar break quando não precisa mais procurar
          if (lin > (mapaQtdLinha - palavras[palavraAtual][0].length()) && letraAtual == 0) {
           break;
@@ -268,8 +297,10 @@ public class CacaPalavraAprimorado {
           letraAtual += 1;
           
           if (letraAtual == palavras[palavraAtual][0].length()) {
-            palavras[palavraAtual][1] =
-              "[" + (lin - palavras[palavraAtual][0].length() + 1) + "," + col + "]";
+            palavras[palavraAtual][1] = "[" + (lin - palavras[palavraAtual][0].length() + 1) + "," + col + "]";
+            for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                mapaBoolean[lin - j][col] = true;
+            }
             letraAtual = 0;
             break;
           }
@@ -280,18 +311,12 @@ public class CacaPalavraAprimorado {
     }
   }
  //método para procurar as palavras de baixo para cima
-  private void baixoParaCima ( int palavraAtual,
-  int lin,
-  int col,
-  int letraAtual,
-  int mapaQtdLinha,
-  int mapaQtdColuna,
-  char[][] mapa,
-  String[][] palavras) {
+  private void baixoParaCima (int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
       //percorre linhas de baixo para cima
       //agora começa por coluna ao invés de linha
-      for (col = 0; col < mapaQtdColuna; col++) {
-        for (lin = (mapaQtdLinha - 1); lin >= 0; lin -= 1) {
+      int letraAtual = 0;
+      for (int col = 0; col < mapaQtdColuna; col++) {
+        for (int lin = (mapaQtdLinha - 1); lin >= 0; lin -= 1) {
           //melhorar desempenho, dar break quando não precisa mais procurar
           if (lin < (palavras[palavraAtual][0].length() - 1) && letraAtual == 0) {
             break;
@@ -299,8 +324,10 @@ public class CacaPalavraAprimorado {
             letraAtual += 1;
           
             if (letraAtual == palavras[palavraAtual][0].length()) {
-              palavras[palavraAtual][1] =
-                "[" + (lin + palavras[palavraAtual][0].length() - 1) + "," + col + "]";
+              palavras[palavraAtual][1] = "[" + (lin + palavras[palavraAtual][0].length() - 1) + "," + col + "]";
+              for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                mapaBoolean[lin + j][col] = true;
+            }
               letraAtual = 0;
               break;
             }
@@ -311,43 +338,29 @@ public class CacaPalavraAprimorado {
       }
   }
  //método para procurar as palavras da esquerda para a direita, e depois na diagonal esquerda acima
-  private void diagonalEsquerdaAcima(
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
+  private void diagonalEsquerdaAcima(int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     // procura da esquerda para a direita, e depois compara na diagonal esquerda acima
     int auxiliar = 0;
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = 0; col < mapaQtdColuna; col++) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = 0; col < mapaQtdColuna; col++) {
       //melhora desempenho, dá break quando a coluna e linha já passou do tamanho da palavra.
-        if (
-          lin < (palavras[palavraAtual][0].length() - 1) &&
-          col < (palavras[palavraAtual][0].length() - 1) 
-        ) {
+        if (lin < (palavras[palavraAtual][0].length() - 1) && col < (palavras[palavraAtual][0].length() - 1)) {
           break;
-         } else if (
-          lin >= (palavras[palavraAtual][0].length() - 1) &&
-          col >= (palavras[palavraAtual][0].length() - 1)
-        ) {
-          if (
-            (mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))
-          ) {
+         } else if (lin >= (palavras[palavraAtual][0].length() - 1) &&
+                    col >= (palavras[palavraAtual][0].length() - 1)) {
+
+          if ((mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))) {
             letraAtual += 1;
-            
             for (auxiliar = 1; auxiliar < palavras[palavraAtual][0].length(); auxiliar += 1) {
               //aqui está o segredo pra fazer a comparação na diagonal, através de um FOR e uma variável auxiliar.
-              if (
-                mapa[lin - auxiliar][col - auxiliar] ==
-                palavras[palavraAtual][0].charAt(letraAtual)
-              ) {
+              if (mapa[lin - auxiliar][col - auxiliar] == palavras[palavraAtual][0].charAt(letraAtual)) {
                 letraAtual += 1;
                 if (letraAtual == palavras[palavraAtual][0].length()) {
                   palavras[palavraAtual][1] = "[" + lin + "," + col + "]";
+                  for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                    mapaBoolean[lin - j][col - j] = true;
+                }
                   letraAtual = 0;
                   break;
                 }
@@ -363,31 +376,16 @@ public class CacaPalavraAprimorado {
     }
   }
 //método para procurar as palavras da esquerda para a direita, e depois na diagonal direita acima
-  private void diagonalDireitaAcima(
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
+  private void diagonalDireitaAcima(int palavraAtual, int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     // procura da esquerda para a direita, e depois compara na diagonal direita acima
     int auxiliar = 0;
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = 0; col < mapaQtdColuna; col++) {
-        if (
-          lin < (palavras[palavraAtual][0].length() - 1) &&
-          col > (mapaQtdColuna - palavras[palavraAtual][0].length())
-        ) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = 0; col < mapaQtdColuna; col++) {
+        if ( lin < (palavras[palavraAtual][0].length() - 1) && col > (mapaQtdColuna - palavras[palavraAtual][0].length())) {
           break;
-        } else if (
-          lin >= (palavras[palavraAtual][0].length() - 1) &&
-          col <= (mapaQtdColuna - palavras[palavraAtual][0].length())
-        ) {
-          if (
-            (mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))
-          ) {
+        } else if (lin >= (palavras[palavraAtual][0].length() - 1) && col <= (mapaQtdColuna - palavras[palavraAtual][0].length())) {
+          if ((mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))) {
             letraAtual += 1;
             for (auxiliar = 1; auxiliar < palavras[palavraAtual][0].length(); auxiliar += 1) {
               //aqui a comparação é igual no método diagonal esquerda acima, mudando apenas o sinal, pois agora sobe a linha e aumenta a coluna.
@@ -396,6 +394,9 @@ public class CacaPalavraAprimorado {
                 
                 if (letraAtual == palavras[palavraAtual][0].length()) {
                   palavras[palavraAtual][1] = "[" + lin + "," + col + "]";
+                  for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                    mapaBoolean[lin - j][col + j] = true;
+                }
                   letraAtual = 0;
                   break;
                 }
@@ -411,35 +412,27 @@ public class CacaPalavraAprimorado {
     }
   }
 //método para procurar as palavras da esquerda para a direita, e depois na diagonal esquerda abaixo
-  private void diagonalEsquerdaAbaixo(
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
+  private void diagonalEsquerdaAbaixo(int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     // procura da esquerda para a direita, e depois compara na diagonal esquerda abaixo
     int auxiliar = 0;
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = 0; col < mapaQtdColuna; col++) {
-        if (
-          lin > (mapaQtdLinha - palavras[palavraAtual][0].length()) &&
-          col < (palavras[palavraAtual][0].length() - 1)
-        ) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = 0; col < mapaQtdColuna; col++) {
+        if (lin > (mapaQtdLinha - palavras[palavraAtual][0].length()) &&col < (palavras[palavraAtual][0].length() - 1)) {
           break;
-        } else if (
-          lin <= (mapaQtdLinha - palavras[palavraAtual][0].length()) &&
-          col >= (palavras[palavraAtual][0].length() - 1)
-        ) {
+        } else if (lin <= (mapaQtdLinha - palavras[palavraAtual][0].length()) && col >= (palavras[palavraAtual][0].length() - 1)) {
+
           if ((mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))) {
             letraAtual += 1;
             for (auxiliar = 1; auxiliar < palavras[palavraAtual][0].length(); auxiliar += 1) {
               if (mapa[lin + auxiliar][col - auxiliar] == palavras[palavraAtual][0].charAt(letraAtual)) {
                 letraAtual += 1;
+
                 if (letraAtual == palavras[palavraAtual][0].length()) {
-                  palavras[palavraAtual][1] = "[" + lin + "," + col + "]";
+                  palavras[palavraAtual][1] = "[" + lin + "," + col + "]"; 
+                  for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                    mapaBoolean[lin + j][col - j] = true;
+                }   
                   letraAtual = 0;
                   break;
                 }
@@ -455,37 +448,25 @@ public class CacaPalavraAprimorado {
     }
   }
 //método para procurar as palavras da esquerda para a direita, e depois na diagonal direita abaixo
-  private void diagonalDireitaAbaixo(
-    int palavraAtual,
-    int lin,
-    int col,
-    int letraAtual,
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
+  private void diagonalDireitaAbaixo(int palavraAtual,int mapaQtdLinha,int mapaQtdColuna,char[][] mapa,String[][] palavras) {
     // procura da esquerda para a direita, e depois compara na diagonal direita abaixo
     int auxiliar = 0;
-    for (lin = 0; lin < mapaQtdLinha; lin++) {
-      for (col = 0; col < mapaQtdColuna; col++) {
-        if (
-          lin > (mapaQtdLinha - palavras[palavraAtual][0].length()) &&
-          col > (mapaQtdColuna - palavras[palavraAtual][0].length())
-        ) {
+    int letraAtual = 0;
+    for (int lin = 0; lin < mapaQtdLinha; lin++) {
+      for (int col = 0; col < mapaQtdColuna; col++) {
+        if (lin > (mapaQtdLinha - palavras[palavraAtual][0].length()) && col > (mapaQtdColuna - palavras[palavraAtual][0].length())) {
           break;
-        } else if (
-          lin <= (mapaQtdLinha - palavras[palavraAtual][0].length()) &&
-          col <= (mapaQtdColuna - palavras[palavraAtual][0].length())
-        ) {
-          if (
-            (mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))
-          ) {
+        } else if (lin <= (mapaQtdLinha - palavras[palavraAtual][0].length()) && col <= (mapaQtdColuna - palavras[palavraAtual][0].length())) {
+          if ((mapa[lin][col] == palavras[palavraAtual][0].charAt(letraAtual))) {
             letraAtual += 1;
             for (auxiliar = 1; auxiliar < palavras[palavraAtual][0].length(); auxiliar += 1) {
               if (mapa[lin + auxiliar][col + auxiliar] == palavras[palavraAtual][0].charAt(letraAtual)) {
                 letraAtual += 1;
                 if (letraAtual == palavras[palavraAtual][0].length()) {
                   palavras[palavraAtual][1] = "[" + lin + "," + col + "]";
+                  for (int j = 0; j < palavras[palavraAtual][0].length(); j++) {
+                    mapaBoolean[lin + j][col + j] = true;
+                }
                   letraAtual = 0;
                   break;
                 }
@@ -501,50 +482,41 @@ public class CacaPalavraAprimorado {
     }
   }
   //chamando o método mapa pesquisa, dentro dele, será executado os 8 métodos de procurar palavras
-  public void mapaPesquisar(
-    int mapaQtdLinha,
-    int mapaQtdColuna,
-    char[][] mapa,
-    String[][] palavras) {
-    
+  public void mapaPesquisar(int mapaQtdLinha, int mapaQtdColuna,char[][] mapa, String[][] palavras) {
     for (int palavraAtual = 0; palavraAtual < palavras.length; palavraAtual++) {
-      int lin = 0;
-      int col = 0;
-      int letraAtual = 0;
       
       //IF para melhorar desempenho do código, se a coluna 1 da matriz palavras estiver vazia, a palavra ainda não foi encontrada
       //Se a palavra foi encontrada em um dos métodos, para de procurar nos outros imediatamente e vai pra próxima palavra.
       
       //esse primeiro método não precisa do IF pois sempre começamos procurando por ele.
-      esquerdaParaDireita(palavraAtual, lin, col, letraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
-      
-      //IF:
+      esquerdaParaDireita(palavraAtual,mapaQtdLinha, mapaQtdColuna, mapa, palavras);
+
       if (palavras[palavraAtual][1] == null) {
-      direitaParaEsquerda(palavraAtual, lin, col, letraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
+      direitaParaEsquerda(palavraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
     }
       if (palavras[palavraAtual][1] == null) { 
-      cimaParaBaixo(palavraAtual, lin, col, letraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
+      cimaParaBaixo(palavraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
     }
       if (palavras[palavraAtual][1] == null) {
-      baixoParaCima(palavraAtual, lin, col, letraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
+      baixoParaCima(palavraAtual, mapaQtdLinha, mapaQtdColuna, mapa, palavras);
     }
       if (palavras[palavraAtual][1] == null) {
-      diagonalEsquerdaAcima(palavraAtual,lin,col,letraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
+      diagonalEsquerdaAcima(palavraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
     }
       if (palavras[palavraAtual][1] == null) {
-      diagonalDireitaAcima(palavraAtual,lin,col,letraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
+      diagonalDireitaAcima(palavraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
     }
       if (palavras[palavraAtual][1] == null) {
-      diagonalEsquerdaAbaixo(palavraAtual,lin,col,letraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
+      diagonalEsquerdaAbaixo(palavraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
     }
       if (palavras[palavraAtual][1] == null) {
-      diagonalDireitaAbaixo(palavraAtual,lin,col,letraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
+      diagonalDireitaAbaixo(palavraAtual,mapaQtdLinha,mapaQtdColuna,mapa,palavras);
     }
     }
   }
 
   public static void main(String[] args) throws Exception {
     //chamando o método construtor no método Main
-    new CacaPalavraAprimorado();
+    new CacaPalavrasCompleto();
   }
 }
