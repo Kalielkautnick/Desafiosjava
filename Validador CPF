@@ -1,0 +1,36 @@
+import java.util.Scanner;
+public class ValidadorCPF {
+    private int[] vetor = new int[11];
+    private int digito1, digito2;
+
+    public ValidadorCPF(String cpf) {
+        while (cpf.length() != 11) {       
+        System.out.println("CPF inválido, o CPF digitado tem " + cpf.length() + " dígitos \nCorreto: 11");
+    }
+    imprimeResultado(validaCPF(cpf), cpf);
+ }
+
+    public boolean validaCPF(String cpf) {
+        for (int i = 0; i < vetor.length; i++) { 
+             vetor[i] = Integer.parseInt(cpf.substring(i, i + 1)); 
+            }
+        int somador = ((vetor[8]*2+vetor[7]*3+vetor[6]*4+vetor[5]*5+vetor[4]*6+vetor[3]*7+vetor[2]*8+vetor[1]*9+vetor[0]*10) % 11);
+                    digito1 = ((somador) < 2) ? 0 : 11 - somador;
+        int somador2 = ((vetor[9]*2+vetor[8]*3+vetor[7]*4+vetor[6]*5+vetor[5]*6+vetor[4]*7+vetor[3]*8+vetor[2]*9+vetor[1]*10+vetor[0]*11) % 11);
+                    digito2 = ((somador2) < 2) ? 0 : 11 - somador2;
+        return (digito1 == vetor[9] && digito2 == vetor[10]) ? true : false;       
+    }
+
+    public void imprimeResultado(boolean CPFverdadeiro, String cpf) {
+        String s = (CPFverdadeiro) ?  "\nCPF Válido.\n" : "\nCPF Inválido.\n"; 
+        System.out.println(s + cpf.substring(0,3)+"."+cpf.substring(3,6)+"."+cpf.substring(6,9)+"-"+cpf.substring(9,11));
+    }
+    
+  public static void main(String[] args) {
+    Scanner sc = new Scanner(System.in);
+    System.out.print("Digite o CPF a validar: ");
+    String cpf = sc.next().trim().replaceAll("[\\D]", "");
+        new ValidadorCPF(cpf);
+        sc.close();
+    }
+}
