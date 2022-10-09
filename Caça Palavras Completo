@@ -1,6 +1,5 @@
-
-
 //Esse é um caça palavras 15x15 que procura as palavras em todas as 8 direções, feito por mim.
+//O Caça palavras também mostra o resultado ao usuário visualmente pelo console, pintando de fundo colorido as respostas.
 
 import java.util.Scanner;
 
