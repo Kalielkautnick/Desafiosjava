@@ -29,7 +29,6 @@ public boolean validaCPF(int []vetor) {
     }
     
 public void imprimeResultado (boolean b, String cnpj) {
-String s;
     if (cnpj.length() == 14) {
         s = (b) ? "\nCNPJ Válido. \n" : "\nCNPJ Inválido. \n";
         System.out.println("\nCNPJ "+ ((b) ? "Válido" : "Inválido") + cnpj.substring(0,2)+"."+cnpj.substring(2,5)+"."+cnpj.substring(5,8)+"/"+cnpj.substring(8,12)+"-"+cnpj.substring(12,14));
