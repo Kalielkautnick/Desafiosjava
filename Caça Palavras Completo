@@ -45,11 +45,14 @@ public class CacaPalavrasCompleto {
         imprimirMapaBoolean(mapa, mapaQuantLinhas, mapaQuantColunas, palavras);
           break;
         default:
-          System.out.println("Opção errada!...");
+        if (opcao != 5) {
+          System.out.println("Opção inválida!...");
+        }
           break;
       }
     } 
     while (opcao != 5);
+    System.out.println("Você escolheu sair.");
     entrada.close();
   }
   
