@@ -54,6 +54,7 @@ public class CacaPalavrasCompleto {
     while (opcao != 5);
     System.out.println("Você escolheu sair.");
     entrada.close();
+    System.exit(0);
   }
   
 //método onde coloco as palavras que terá no meu caça palavras
